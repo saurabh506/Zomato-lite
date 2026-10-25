@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Suspense, useEffect, useState, useCallback } from "react";
 import { BrandHeader, LoaderDots } from "@/app/_components/BrandHeader";
+import { DishScene } from "@/app/_components/DishScene";
 
 type Review = {
   id: number;
@@ -157,20 +158,7 @@ function RestaurantContent() {
       <main className="mx-auto w-full max-w-[560px] flex-1 px-4 pb-36 pt-6">
         {/* Restaurant card: dish photo banner (slow Ken Burns) + facts */}        <section className="animate-fade-up overflow-hidden rounded-[20px] border border-neutral-200/80 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-16px_rgba(0,0,0,0.12)]">
           <div className="relative h-44 overflow-hidden">
-            <img
-              src="/dish.jpg"
-              alt={`${data.name} — signature paneer curry in brass bowls`}
-              className="animate-kenburns h-full w-full object-cover"
-            />
-            {/* Brand red veil + dotted pattern over the photo */}
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundColor: "rgba(226, 55, 68, 0.22)",
-                backgroundImage: "radial-gradient(rgba(255,255,255,0.25) 1.5px, transparent 1.5px)",
-                backgroundSize: "18px 18px",
-              }}
-            />
+            <DishScene />
           </div>
 
           <div className="px-5 py-5">

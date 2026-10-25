@@ -81,6 +81,64 @@ html {
   }
 }
 
+/* DishScene: steam curls rise, fade, and restart */
+@keyframes steamRise {
+  0% {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  25% {
+    opacity: 0.55;
+  }
+  70% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-26px);
+  }
+}
+
+/* DishScene: flame teardrops pulse on the banquet */
+@keyframes flameFlicker {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.35);
+  }
+}
+
+/* DishScene: the spatula presses down and turns, patiently */
+@keyframes spatulaPress {
+  0%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  40% {
+    transform: rotate(1.5deg) translateY(7px);
+  }
+  60% {
+    transform: rotate(2.5deg) translateY(7px);
+  }
+}
+
+.dish-steam {
+  animation: steamRise 3.6s ease-in-out infinite;
+}
+
+.dish-flame {
+  animation: flameFlicker 0.9s ease-in-out infinite;
+  transform-origin: center bottom;
+  transform-box: fill-box;
+}
+
+.dish-spatula {
+  animation: spatulaPress 3.2s ease-in-out infinite;
+  transform-origin: 310px 95px;
+}
+
 /* Atmosphere: the dish photo breathes — a very slow zoom in and out */
 @keyframes kenBurns {
   from {
@@ -154,6 +212,9 @@ html {
   .animate-rise,
   .animate-dots,
   .animate-kenburns,
+  .dish-steam,
+  .dish-flame,
+  .dish-spatula,
   .loader-dot {
     animation: none !important;
   }
