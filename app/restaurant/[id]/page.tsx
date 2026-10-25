@@ -1,13 +1,14 @@
 // app/restaurant/[id]/page.tsx
 // Screen 2 — the restaurant page. A pure display layer:
-// it calls GET /api/restaurants/[id] and prints what it receives.
-// No averages computed here, no sorting here. That is the rule.
+// it calls GET /api/restaurants/[id] and paints what it receives.
+// No averages computed here, no sorting here. That rule has not moved.
 
 "use client";
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Suspense, useEffect, useState, useCallback } from "react";
+import { BrandHeader } from "@/app/_components/BrandHeader";
 
 type Review = {
   id: number;
@@ -26,14 +27,47 @@ type RestaurantData = {
   reviews: Review[];
 };
 
+const RED = "#E23744";
+const GREEN = "#1F7A3F";
+
+// Presentation formatting only — turning a timestamp the API sent
+// into human words. No rating arithmetic happens in this file.
+function timeAgo(iso: string) {
+  const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (seconds < 60) return "just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+}
+
+function initials(name: string) {
+  return name
+    .split(" ")
+    .map((word) => word[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+function chipClass(rating: number) {
+  if (rating >= 4) return "bg-[#1F7A3F] text-white";
+  if (rating === 3) return "bg-[#B7791F] text-white";
+  return "bg-[#E23744] text-white";
+}
+
 export default function RestaurantPage() {
-  // Next.js prerenders the page ahead of time; reading the URL is a
-  // visit-time thing, so the content streams in inside a Suspense shell.
   return (
     <Suspense
       fallback={
-        <main className="mx-auto max-w-[560px] px-6 py-24 text-neutral-500">
-          <p>Loading…</p>
+        <main className="min-h-dvh bg-[#F7F6F3] text-neutral-500">
+          <BrandHeader />
+          <div className="mx-auto max-w-[560px] px-5 py-16">
+            <p>Loading…</p>
+          </div>
         </main>
       }
     >
@@ -71,96 +105,133 @@ function RestaurantContent() {
     load();
   }, [load]);
 
+  const frame = "min-h-dvh flex flex-col bg-[#F7F6F3]";
+
   if (status === "loading") {
     return (
-      <main className="mx-auto max-w-[560px] px-6 py-24 text-neutral-500">
-        <p>Loading…</p>
-      </main>
+      <div className={frame}>
+        <BrandHeader />
+        <main className="mx-auto w-full max-w-[560px] flex-1 px-5 py-16 text-neutral-500">
+          <p>Loading…</p>
+        </main>
+      </div>
     );
   }
 
-  if (status === "notfound") {
+  if (status === "notfound" || status === "error" || !data) {
     return (
-      <main className="mx-auto max-w-[560px] px-6 py-24">
-        <h1 className="text-2xl font-semibold text-neutral-900">Restaurant not found</h1>
-      </main>
-    );
-  }
-
-  if (status === "error" || !data) {
-    return (
-      <main className="mx-auto max-w-[560px] px-6 py-24">
-        <h1 className="text-2xl font-semibold text-neutral-900">Something went wrong</h1>
-        <p className="mt-2 text-neutral-600">Could not load this restaurant.</p>
-      </main>
+      <div className={frame}>
+        <BrandHeader />
+        <main className="mx-auto w-full max-w-[560px] flex-1 px-5 py-16">
+          <h1 className="text-2xl font-extrabold text-neutral-900">
+            {status === "notfound" ? "Restaurant not found" : "Something went wrong"}
+          </h1>
+          <p className="mt-2 text-neutral-500">Could not load this restaurant.</p>
+        </main>
+      </div>
     );
   }
 
   return (
-    <main className="mx-auto max-w-[560px] px-6 py-16">
-      {/* Name and location */}
-      <h1 className="text-3xl font-semibold tracking-tight text-neutral-900">{data.name}</h1>
-      <p className="mt-1 text-sm text-neutral-500">
-        {data.cuisine} · {data.area}
-      </p>
+    <div className={frame}>
+      <BrandHeader />
 
-      {/* The average — printed exactly as the backend computed it.
-          The frontend adds nothing, divides nothing. It just prints. */}
-      <div className="mt-10 flex items-baseline gap-3">
-        <span className="text-7xl font-semibold tracking-tight text-neutral-900">
-          {data.averageRating ?? "—"}
-        </span>
-        <span className="text-sm text-neutral-500">
-          {data.averageRating ? "out of 5" : null}
-          {data.totalReviews > 0 ? ` — ${data.totalReviews} review${data.totalReviews === 1 ? "" : "s"}` : ""}
-        </span>
-      </div>
+      <main className="mx-auto w-full max-w-[560px] flex-1 px-4 pb-36 pt-5">
+        {/* Restaurant card: red dotted banner + facts */}
+        <section className="overflow-hidden rounded-2xl bg-white shadow-sm">
+          <div
+            className="flex h-40 items-end px-6 py-5"
+            style={{
+              backgroundColor: RED,
+              backgroundImage: "radial-gradient(rgba(255,255,255,0.22) 1.5px, transparent 1.5px)",
+              backgroundSize: "18px 18px",
+            }}
+          >
+            <span className="text-5xl font-extrabold tracking-tight text-white">{initials(data.name)}</span>
+          </div>
 
-      {data.latestReview ? (
-        <>
-          {/* The latest review — highlighted, sits apart from the rest */}
-          <section className="mt-10 rounded-xl border border-neutral-200 bg-white p-5">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-amber-700">Latest review</p>
-            <p className="mt-3 text-[15px] leading-6 text-neutral-900">{data.latestReview.comment}</p>
-            <p className="mt-3 text-xs text-neutral-500">
-              rated {data.latestReview.rating}/5 — {new Date(data.latestReview.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+          <div className="px-5 py-5">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-extrabold tracking-tight text-neutral-900">{data.name}</h1>
+                <p className="mt-1 text-sm text-neutral-500">{data.area}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-700">{data.cuisine}</span>
+                  <span className="rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-700">Dine-in</span>
+                </div>
+              </div>
+
+              {data.averageRating !== null && (
+                <div className="flex flex-col items-center rounded-xl bg-[#1F7A3F] px-4 py-2.5 text-white">
+                  {/* Printed exactly as the backend handed it over. */}
+                  <span className="text-4xl font-bold leading-none">{data.averageRating}</span>
+                  <span className="mt-1 text-xs text-white/85">/5</span>
+                </div>
+              )}
+            </div>
+
+            <p className="mt-4 text-sm font-medium text-neutral-500">
+              {data.totalReviews > 0
+                ? `Based on ${data.totalReviews} review${data.totalReviews === 1 ? "" : "s"}`
+                : "No reviews yet"}
             </p>
-          </section>
+          </div>
+        </section>
 
-          {/* Older reviews — a plain list, newest first (order comes from the API) */}
-          {data.reviews.length > 0 && (
-            <section className="mt-10">
-              <h2 className="text-xs font-medium uppercase tracking-wider text-neutral-400">Earlier reviews</h2>
-              <ul className="mt-3">
-                {data.reviews.map((review) => (
-                  <li key={review.id} className="border-b border-neutral-200 py-4 last:border-b-0">
-                    <p className="text-[15px] leading-6 text-neutral-900">{review.comment}</p>
-                    <p className="mt-2 text-xs text-neutral-500">
-                      rated {review.rating}/5 — {new Date(review.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-        </>
-      ) : (
-        /* Empty state — what happens when there is nothing yet */
-        <div className="mt-10 rounded-xl border border-neutral-200 bg-white p-6">
-          <p className="text-[15px] text-neutral-900">No reviews yet.</p>
-          <p className="mt-1 text-sm text-neutral-500">Be the first to review {data.name}.</p>
-        </div>
-      )}
+        {data.latestReview ? (
+          <>
+            {/* The latest review — highlighted card with green edge */}
+            <h2 className="mt-8 text-xs font-bold uppercase tracking-widest text-neutral-400">Latest review</h2>
+            <article className="relative mt-4 rounded-xl border border-l-4 border-l-[#1F7A3F] border-neutral-200 bg-white p-5 shadow-sm">
+              <span className="absolute -top-3 left-4 rounded-md bg-[#1F7A3F] px-3 py-1 text-[10px] font-bold tracking-wide text-white">
+                LATEST
+              </span>
+              <div className="flex items-center justify-between">
+                <span className={`rounded-md px-2.5 py-1 text-sm font-bold ${chipClass(data.latestReview.rating)}`}>
+                  {data.latestReview.rating}
+                </span>
+                <span className="text-sm text-neutral-400">{timeAgo(data.latestReview.createdAt)}</span>
+              </div>
+              <p className="mt-3 text-[15px] leading-6 text-neutral-800">{data.latestReview.comment}</p>
+            </article>
 
-      {/* Write a review */}
-      <div className="mt-12">
+            {/* Older reviews — plain cards, newest first (order comes from the API) */}
+            {data.reviews.length > 0 && (
+              <>
+                <h2 className="mt-8 text-xs font-bold uppercase tracking-widest text-neutral-400">Earlier reviews</h2>
+                <div className="mt-4 space-y-3">
+                  {data.reviews.map((review) => (
+                    <article key={review.id} className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+                      <div className="flex items-center justify-between">
+                        <span className={`rounded-md px-2.5 py-1 text-sm font-bold ${chipClass(review.rating)}`}>
+                          {review.rating}
+                        </span>
+                        <span className="text-sm text-neutral-400">{timeAgo(review.createdAt)}</span>
+                      </div>
+                      <p className="mt-2.5 text-[15px] leading-6 text-neutral-800">{review.comment}</p>
+                    </article>
+                  ))}
+                </div>
+              </>
+            )}
+          </>
+        ) : (
+          <div className="mt-8 rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
+            <p className="text-[15px] font-semibold text-neutral-900">No reviews yet.</p>
+            <p className="mt-1 text-sm text-neutral-500">Be the first to review {data.name}.</p>
+          </div>
+        )}
+      </main>
+
+      {/* Sticky bottom CTA — the one loud red element on the page */}
+      <div className="fixed inset-x-0 bottom-0 bg-gradient-to-t from-[#F7F6F3] via-[#F7F6F3]/85 to-transparent px-4 pb-4 pt-6">
         <Link
           href={`/review/${restaurantId}`}
-          className="inline-flex items-center rounded-lg bg-neutral-900 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-neutral-700"
+          className="mx-auto flex w-full max-w-[528px] items-center justify-center rounded-xl bg-[#E23744] py-4 text-base font-bold text-white transition-colors hover:bg-[#c93040]"
         >
-          Write a review
+          Write a Review
         </Link>
       </div>
-    </main>
+    </div>
   );
 }

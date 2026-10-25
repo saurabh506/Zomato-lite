@@ -9,13 +9,33 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import { BrandHeader } from "@/app/_components/BrandHeader";
+
+const RED = "#E23744";
+
+function StarIcon({ filled }: { filled: boolean }) {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M12 2l2.9 6.26 6.6.6-5 4.5 1.5 6.4L12 16.7 5.9 19.8l1.5-6.4-5-4.5 6.6-.6L12 2z"
+        fill={filled ? "currentColor" : "none"}
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 export default function ReviewPage() {
   return (
     <Suspense
       fallback={
-        <main className="mx-auto max-w-[560px] px-6 py-24 text-neutral-500">
-          <p>Loading…</p>
+        <main className="min-h-dvh bg-[#F7F6F3] text-neutral-500">
+          <BrandHeader />
+          <div className="mx-auto max-w-[560px] px-5 py-16">
+            <p>Loading…</p>
+          </div>
         </main>
       }
     >
@@ -54,8 +74,11 @@ function ReviewContent() {
 
   if (!exists) {
     return (
-      <main className="mx-auto max-w-[560px] px-6 py-24">
-        <h1 className="text-2xl font-semibold text-neutral-900">Restaurant not found</h1>
+      <main className="min-h-dvh bg-[#F7F6F3]">
+        <BrandHeader />
+        <div className="mx-auto max-w-[560px] px-5 py-16">
+          <h1 className="text-2xl font-extrabold text-neutral-900">Restaurant not found</h1>
+        </div>
       </main>
     );
   }
@@ -91,77 +114,86 @@ function ReviewContent() {
   }
 
   return (
-    <main className="mx-auto max-w-[560px] px-6 py-16">
-      <p className="text-[11px] font-medium uppercase tracking-wider text-neutral-400">Write a review</p>
-      <h1 className="mt-2 text-3xl font-semibold tracking-tight text-neutral-900">{name ?? "…"}</h1>
+    <div className="min-h-dvh bg-[#F7F6F3]">
+      <BrandHeader />
 
-      {/* Star picker — kindness layer only. The real 1-to-5 police is the backend. */}
-      <div className="mt-10">
-        <p className="text-xs font-medium uppercase tracking-wider text-neutral-400">Rating</p>
-        <div className="mt-4 flex gap-2" onMouseLeave={() => setHovered(0)}>
-          {[1, 2, 3, 4, 5].map((value) => {
-            const active = (hovered || rating) >= value;
-            return (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setRating(value)}
-                onMouseEnter={() => setHovered(value)}
-                aria-label={`${value} star${value === 1 ? "" : "s"}`}
-                className={`flex h-11 w-11 items-center justify-center rounded-lg border text-sm font-medium transition-colors ${
-                  active
-                    ? "border-amber-600 bg-amber-600 text-white"
-                    : "border-neutral-300 bg-white text-neutral-500 hover:border-neutral-400"
-                }`}
-              >
-                {value}
-              </button>
-            );
-          })}
+      <main className="mx-auto w-full max-w-[560px] px-4 pb-16 pt-5">
+        <section className="rounded-2xl bg-white p-6 shadow-sm sm:p-8">
+          <p className="text-xs font-bold uppercase tracking-widest text-neutral-400">Writing a review for</p>
+          <h1 className="mt-1.5 text-3xl font-extrabold tracking-tight text-neutral-900">{name ?? "…"}</h1>
+
+          {/* Star picker — kindness layer only. The real 1-to-5 police is the backend. */}
+          <h2 className="mt-8 text-lg font-bold text-neutral-900">Rate it</h2>
+          <div className="mt-3 grid grid-cols-5 gap-2" onMouseLeave={() => setHovered(0)}>
+            {[1, 2, 3, 4, 5].map((value) => {
+              const active = (hovered || rating) >= value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setRating(value)}
+                  onMouseEnter={() => setHovered(value)}
+                  aria-label={`${value} star${value === 1 ? "" : "s"}`}
+                  className={`flex h-16 items-center justify-center rounded-xl border transition-colors ${
+                    active
+                      ? "border-[#E23744] bg-[#E23744]/[0.06] text-[#E23744]"
+                      : "border-neutral-200 bg-white text-neutral-300 hover:border-neutral-300 hover:text-neutral-400"
+                  }`}
+                >
+                  <StarIcon filled={active} />
+                </button>
+              );
+            })}
+          </div>
           {rating > 0 && (
-            <span className="self-center pl-2 text-sm text-neutral-500">{rating}/5</span>
+            <p className="mt-2 text-sm font-semibold text-[#E23744]">{rating}/5</p>
           )}
-        </div>
-      </div>
 
-      {/* Comment box */}
-      <div className="mt-10">
-        <p className="text-xs font-medium uppercase tracking-wider text-neutral-400">Comment</p>
-        <textarea
-          value={comment}
-          onChange={(event) => setComment(event.target.value)}
-          rows={4}
-          maxLength={500}
-          placeholder="What did you eat? How was it?"
-          className="mt-4 w-full resize-none rounded-lg border border-neutral-300 bg-white px-4 py-3 text-[15px] leading-6 text-neutral-900 outline-none transition-colors placeholder:text-neutral-400 focus:border-neutral-900"
-        />
-      </div>
+          {/* Comment box */}
+          <h2 className="mt-8 text-lg font-bold text-neutral-900">Your review</h2>
+          <textarea
+            value={comment}
+            onChange={(event) => setComment(event.target.value)}
+            rows={5}
+            maxLength={500}
+            placeholder="How was the food, the service, the vibe?"
+            className="mt-3 w-full resize-none rounded-xl border border-neutral-200 bg-white px-4 py-3 text-[15px] leading-6 text-neutral-900 outline-none transition-colors placeholder:text-neutral-400 focus:border-neutral-500"
+          />
+          <p className="mt-1.5 text-right text-xs text-neutral-400">{comment.length}/500</p>
 
-      {error && (
-        <p className="mt-4 rounded-lg border border-amber-600 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          {error}
+          {error && (
+            <p className="mt-4 rounded-xl border border-[#E23744]/30 bg-rose-50 px-4 py-3 text-sm text-[#c81e2b]">
+              {error}
+            </p>
+          )}
+
+          {/* Disabled until rating picked and comment non-empty */}
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            className={`mt-4 w-full rounded-xl py-4 text-base font-bold transition-colors ${
+              canSubmit
+                ? "bg-[#E23744] text-white hover:bg-[#c93040]"
+                : "cursor-not-allowed bg-neutral-100 text-neutral-400"
+            }`}
+          >
+            {submitting ? "Saving…" : "Submit Review"}
+          </button>
+        </section>
+
+        <p className="mt-6 text-center text-xs text-neutral-400">
+          Your review is public and cannot be edited or deleted.
         </p>
-      )}
-
-      {/* Disabled until rating picked and comment non-empty */}
-      <button
-        type="button"
-        onClick={handleSubmit}
-        disabled={!canSubmit}
-        className={`mt-8 inline-flex items-center rounded-lg px-5 py-3 text-sm font-medium transition-colors ${
-          canSubmit
-            ? "bg-neutral-900 text-white hover:bg-neutral-700"
-            : "cursor-not-allowed bg-neutral-200 text-neutral-400"
-        }`}
-      >
-        {submitting ? "Saving…" : "Submit review"}
-      </button>
-
-      <div className="mt-6">
-        <Link href={`/restaurant/${restaurantId}`} className="text-sm text-neutral-500 underline underline-offset-4 hover:text-neutral-900">
-          Back to {name ?? "restaurant"}
-        </Link>
-      </div>
-    </main>
+        <p className="mt-2 text-center">
+          <Link
+            href={`/restaurant/${restaurantId}`}
+            className="text-sm text-neutral-500 underline underline-offset-4 hover:text-neutral-900"
+          >
+            Back to {name ?? "restaurant"}
+          </Link>
+        </p>
+      </main>
+    </div>
   );
 }
