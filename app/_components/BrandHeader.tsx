@@ -1,16 +1,16 @@
 // app/_components/BrandHeader.tsx
-// Shared top bar for every screen: red zomato wordmark + lite suffix + BETA chip.
-// Also home of the shared LoaderDots used while waiting on the API.
+// Shared top bar for every screen — sticky, translucent, quiet.
+// Blur keeps content ghosts beneath it readable while scrolling.
 
 export function BrandHeader() {
   return (
-    <header className="border-b border-neutral-200 bg-white">
-      <div className="relative mx-auto flex h-16 w-full max-w-[640px] items-center justify-between px-5">
-        <a href="/" className="text-2xl font-extrabold tracking-tight">
+    <header className="sticky top-0 z-40 border-b border-neutral-200/70 bg-[#FAF9F7]/85 backdrop-blur-md">
+      <div className="mx-auto flex h-14 w-full max-w-[640px] items-center justify-between px-5">
+        <a href="/" className="text-[21px] font-bold tracking-tight transition-opacity hover:opacity-70">
           <span className="text-[#E23744]">zomato</span>
-          <span className="font-semibold text-neutral-300">·lite</span>
+          <span className="font-medium text-neutral-400">·lite</span>
         </a>
-        <span className="rounded-full bg-rose-100 px-3 py-1 text-[11px] font-bold tracking-wide text-[#E23744]">
+        <span className="rounded-full border border-[#E23744]/20 bg-[#E23744]/[0.05] px-2.5 py-0.5 text-[10px] font-semibold tracking-[0.08em] text-[#E23744]">
           BETA
         </span>
       </div>

@@ -43,10 +43,10 @@ function timeAgo(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
-function chipClass(rating: number) {
-  if (rating >= 4) return "bg-[#1F7A3F] text-white";
-  if (rating === 3) return "bg-[#B7791F] text-white";
-  return "bg-[#E23744] text-white";
+function reviewDotClass(rating: number) {
+  if (rating >= 4) return "bg-[#1F7A3F]";
+  if (rating === 3) return "bg-[#B7791F]";
+  return "bg-[#E23744]";
 }
 
 // Pure decoration: eases the display from 0 up to the value the API sent,
@@ -81,7 +81,7 @@ export default function RestaurantPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-dvh bg-[#F7F6F3] text-neutral-500">
+        <main className="min-h-dvh bg-[#FAF9F7] text-neutral-500">
           <BrandHeader />
           <div className="mx-auto max-w-[560px] px-5 py-16">
             <LoaderDots />
@@ -123,7 +123,7 @@ function RestaurantContent() {
     load();
   }, [load]);
 
-  const frame = "min-h-dvh flex flex-col bg-[#F7F6F3]";
+  const frame = "min-h-dvh flex flex-col bg-[#FAF9F7]";
 
   if (status === "loading") {
     return (
@@ -154,9 +154,8 @@ function RestaurantContent() {
     <div className={frame}>
       <BrandHeader />
 
-      <main className="mx-auto w-full max-w-[560px] flex-1 px-4 pb-36 pt-5">
-        {/* Restaurant card: dish photo banner (slow Ken Burns) + facts */}
-        <section className="animate-fade-up overflow-hidden rounded-2xl bg-white shadow-sm">
+      <main className="mx-auto w-full max-w-[560px] flex-1 px-4 pb-36 pt-6">
+        {/* Restaurant card: dish photo banner (slow Ken Burns) + facts */}        <section className="animate-fade-up overflow-hidden rounded-[20px] border border-neutral-200/80 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-16px_rgba(0,0,0,0.12)]">
           <div className="relative h-44 overflow-hidden">
             <img
               src="/dish.jpg"
@@ -177,26 +176,30 @@ function RestaurantContent() {
           <div className="px-5 py-5">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-extrabold tracking-tight text-neutral-900">{data.name}</h1>
+                <h1 className="text-[22px] font-bold leading-tight tracking-[-0.01em] text-neutral-900">{data.name}</h1>
                 <p className="mt-1 text-sm text-neutral-500">{data.area}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <span className="rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-700">{data.cuisine}</span>
-                  <span className="rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-700">Dine-in</span>
+                  <span className="rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs font-medium text-neutral-600">
+                    {data.cuisine}
+                  </span>
+                  <span className="rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs font-medium text-neutral-600">
+                    Dine-in
+                  </span>
                 </div>
               </div>
 
               {data.averageRating !== null && (
-                <div className="animate-pop flex flex-col items-center rounded-xl bg-[#1F7A3F] px-4 py-2.5 text-white shadow-sm">
+                <div className="animate-pop flex flex-col items-center rounded-2xl bg-[#1F7A3F] px-3.5 py-2 text-white shadow-[0_2px_8px_-2px_rgba(31,122,63,0.5)]">
                   {/* Printed by easing up to the exact value the backend computed. */}
-                  <span className="text-4xl font-bold leading-none">
+                  <span className="text-[26px] font-bold leading-7 tracking-tight tabular-nums">
                     <CountUpRating value={data.averageRating} />
                   </span>
-                  <span className="mt-1 text-xs text-white/85">/5</span>
+                  <span className="text-[10px] font-medium text-white/80">/ 5</span>
                 </div>
               )}
             </div>
 
-            <p className="mt-4 text-sm font-medium text-neutral-500">
+            <p className="mt-4 text-[13px] font-medium text-neutral-400">
               {data.totalReviews > 0
                 ? `Based on ${data.totalReviews} review${data.totalReviews === 1 ? "" : "s"}`
                 : "No reviews yet"}
@@ -206,44 +209,54 @@ function RestaurantContent() {
 
         {data.latestReview ? (
           <>
-            {/* The latest review — highlighted card with green edge */}
-            <h2 className="animate-fade-up mt-8 text-xs font-bold uppercase tracking-widest text-neutral-400" style={{ animationDelay: "80ms" }}>
+            {/* The latest review — highlighted with a quiet green system */}
+            <h2
+              className="animate-fade-up mt-9 text-[11px] font-bold uppercase tracking-[0.14em] text-neutral-400"
+              style={{ animationDelay: "80ms" }}
+            >
               Latest review
             </h2>
             <article
-              className="animate-fade-up relative mt-4 rounded-xl border border-l-4 border-l-[#1F7A3F] border-neutral-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+              className="animate-fade-up relative mt-3.5 rounded-[20px] border border-neutral-200/80 bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
               style={{ animationDelay: "140ms" }}
             >
-              <span className="animate-pop absolute -top-3 left-4 rounded-md bg-[#1F7A3F] px-3 py-1 text-[10px] font-bold tracking-wide text-white">
+              <span className="absolute -top-2.5 left-5 rounded-full bg-[#1F7A3F] px-2.5 py-0.5 text-[9px] font-bold tracking-[0.12em] text-white">
                 LATEST
               </span>
-              <div className="flex items-center justify-between">
-                <span className={`rounded-md px-2.5 py-1 text-sm font-bold ${chipClass(data.latestReview.rating)}`}>
-                  {data.latestReview.rating}
+              <div className="flex items-center justify-between pt-1">
+                <span className={`flex items-center gap-2 text-sm font-semibold text-neutral-800`}>
+                  <span className={`h-2 w-2 rounded-full ${reviewDotClass(data.latestReview.rating)}`} />
+                  {data.latestReview.rating}/5
                 </span>
-                <span className="text-sm text-neutral-400">{timeAgo(data.latestReview.createdAt)}</span>
+                <span className="text-[13px] tabular-nums text-neutral-400">
+                  {timeAgo(data.latestReview.createdAt)}
+                </span>
               </div>
-              <p className="mt-3 text-[15px] leading-6 text-neutral-800">{data.latestReview.comment}</p>
+              <p className="mt-2.5 text-[15px] leading-6 text-neutral-800">{data.latestReview.comment}</p>
             </article>
 
-            {/* Older reviews — plain cards, newest first (order comes from the API) */}
+            {/* Older reviews — one clean column with hairline dividers */}
             {data.reviews.length > 0 && (
               <>
-                <h2 className="mt-8 text-xs font-bold uppercase tracking-widest text-neutral-400">Earlier reviews</h2>
-                <div className="mt-4 space-y-3">
+                <h2 className="mt-9 text-[11px] font-bold uppercase tracking-[0.14em] text-neutral-400">
+                  Earlier reviews
+                </h2>
+                <div className="mt-3.5 overflow-hidden rounded-[20px] border border-neutral-200/80 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
                   {data.reviews.map((review, index) => (
                     <article
                       key={review.id}
-                      className="animate-fade-up rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
-                      style={{ animationDelay: `${Math.min(index * 40, 320)}ms` }}
+                      className={`px-5 py-4 transition-colors hover:bg-neutral-50/60 ${
+                        index > 0 ? "border-t border-neutral-100" : ""
+                      }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className={`rounded-md px-2.5 py-1 text-sm font-bold transition-transform hover:scale-110 ${chipClass(review.rating)}`}>
-                          {review.rating}
+                        <span className="flex items-center gap-2 text-sm font-semibold text-neutral-700">
+                          <span className={`h-2 w-2 rounded-full ${reviewDotClass(review.rating)}`} />
+                          {review.rating}/5
                         </span>
-                        <span className="text-sm text-neutral-400">{timeAgo(review.createdAt)}</span>
+                        <span className="text-[13px] tabular-nums text-neutral-400">{timeAgo(review.createdAt)}</span>
                       </div>
-                      <p className="mt-2.5 text-[15px] leading-6 text-neutral-800">{review.comment}</p>
+                      <p className="mt-2 text-[15px] leading-6 text-neutral-700">{review.comment}</p>
                     </article>
                   ))}
                 </div>
@@ -251,7 +264,7 @@ function RestaurantContent() {
             )}
           </>
         ) : (
-          <div className="mt-8 rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
+          <div className="mt-8 rounded-[20px] border border-neutral-200/80 bg-white p-6 text-center shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
             <p className="text-[15px] font-semibold text-neutral-900">No reviews yet.</p>
             <p className="mt-1 text-sm text-neutral-500">Be the first to review {data.name}.</p>
           </div>
@@ -259,10 +272,10 @@ function RestaurantContent() {
       </main>
 
       {/* Sticky bottom CTA — the one loud red element on the page */}
-      <div className="animate-rise fixed inset-x-0 bottom-0 bg-gradient-to-t from-[#F7F6F3] via-[#F7F6F3]/85 to-transparent px-4 pb-4 pt-6">
+      <div className="animate-rise fixed inset-x-0 bottom-0 bg-gradient-to-t from-[#FAF9F7] via-[#FAF9F7]/90 to-transparent px-4 pb-4 pt-8">
         <Link
           href={`/review/${restaurantId}`}
-          className="mx-auto flex w-full max-w-[528px] items-center justify-center rounded-xl bg-[#E23744] py-4 text-base font-bold text-white shadow-lg shadow-[#E23744]/25 transition-all hover:-translate-y-0.5 hover:bg-[#c93040] active:translate-y-0 active:scale-[0.98]"
+          className="mx-auto flex w-full max-w-[528px] items-center justify-center rounded-2xl bg-[#E23744] py-3.5 text-[15px] font-semibold tracking-tight text-white shadow-[0_4px_16px_-4px_rgba(226,55,68,0.45)] transition-all hover:-translate-y-0.5 hover:bg-[#c93040] active:translate-y-0 active:scale-[0.99]"
         >
           Write a Review
         </Link>
