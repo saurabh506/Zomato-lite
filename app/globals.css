@@ -70,6 +70,21 @@ body {
   }
 }
 
+/* Atmosphere: the dish photo breathes — a very slow zoom in and out */
+@keyframes kenBurns {
+  from {
+    transform: scale(1) translateY(0);
+  }
+  to {
+    transform: scale(1.08) translateY(-5px);
+  }
+}
+
+.animate-kenburns {
+  animation: kenBurns 16s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
 /* Loader: three dots taking turns */
 @keyframes dotPulse {
   0%,
@@ -127,6 +142,7 @@ body {
   .animate-star-pop,
   .animate-rise,
   .animate-dots,
+  .animate-kenburns,
   .loader-dot {
     animation: none !important;
   }

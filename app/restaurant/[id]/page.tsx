@@ -27,7 +27,6 @@ type RestaurantData = {
   reviews: Review[];
 };
 
-const RED = "#E23744";
 const GREEN = "#1F7A3F";
 
 // Presentation formatting only — turning a timestamp the API sent
@@ -42,15 +41,6 @@ function timeAgo(iso: string) {
   const days = Math.floor(hours / 24);
   if (days < 30) return `${days}d ago`;
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-}
-
-function initials(name: string) {
-  return name
-    .split(" ")
-    .map((word) => word[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
 }
 
 function chipClass(rating: number) {
@@ -165,17 +155,23 @@ function RestaurantContent() {
       <BrandHeader />
 
       <main className="mx-auto w-full max-w-[560px] flex-1 px-4 pb-36 pt-5">
-        {/* Restaurant card: red dotted banner + facts */}
+        {/* Restaurant card: dish photo banner (slow Ken Burns) + facts */}
         <section className="animate-fade-up overflow-hidden rounded-2xl bg-white shadow-sm">
-          <div
-            className="animate-dots flex h-40 items-end px-6 py-5"
-            style={{
-              backgroundColor: RED,
-              backgroundImage: "radial-gradient(rgba(255,255,255,0.22) 1.5px, transparent 1.5px)",
-              backgroundSize: "18px 18px",
-            }}
-          >
-            <span className="text-5xl font-extrabold tracking-tight text-white">{initials(data.name)}</span>
+          <div className="relative h-44 overflow-hidden">
+            <img
+              src="/dish.jpg"
+              alt={`${data.name} — signature paneer curry in brass bowls`}
+              className="animate-kenburns h-full w-full object-cover"
+            />
+            {/* Brand red veil + dotted pattern over the photo */}
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundColor: "rgba(226, 55, 68, 0.22)",
+                backgroundImage: "radial-gradient(rgba(255,255,255,0.25) 1.5px, transparent 1.5px)",
+                backgroundSize: "18px 18px",
+              }}
+            />
           </div>
 
           <div className="px-5 py-5">
