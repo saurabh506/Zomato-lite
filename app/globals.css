@@ -12,15 +12,122 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ---------- Motion tool kit (pure CSS, respects reduced motion) ---------- */
+
+/* Entrance: rise in with a soft overshoot curve */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Entrance: scale in with a tiny overshoot, like something set down gently */
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  60% {
+    transform: scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Feedback: one springy bump when a star becomes selected */
+@keyframes starPop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.14);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Atmosphere: the dotted banner pattern drifts very slowly */
+@keyframes dotsDrift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 18px 18px;
+  }
+}
+
+/* Loader: three dots taking turns */
+@keyframes dotPulse {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(3px);
+  }
+}
+
+/* Entrance: a deeper rise, for elements entering from off-screen-ish */
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-rise {
+  animation: riseIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-pop {
+  animation: popIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-star-pop {
+  animation: starPop 0.3s ease;
+}
+
+.animate-dots {
+  animation: dotsDrift 7s linear infinite;
+}
+
+.loader-dot {
+  animation: dotPulse 1.2s ease-in-out infinite;
+}
+
+/* Professional courtesy: users who ask the OS for less motion get less motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-pop,
+  .animate-star-pop,
+  .animate-rise,
+  .animate-dots,
+  .loader-dot {
+    animation: none !important;
+  }
 }

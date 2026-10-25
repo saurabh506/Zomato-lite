@@ -8,7 +8,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Suspense, useEffect, useState, useCallback } from "react";
-import { BrandHeader } from "@/app/_components/BrandHeader";
+import { BrandHeader, LoaderDots } from "@/app/_components/BrandHeader";
 
 type Review = {
   id: number;
@@ -59,6 +59,34 @@ function chipClass(rating: number) {
   return "bg-[#E23744] text-white";
 }
 
+// Pure decoration: eases the display from 0 up to the value the API sent,
+// over ~700ms, and the final frame is EXACTLY the API's number.
+// No rating maths lives here — the average was computed in the backend.
+function CountUpRating({ value }: { value: number }) {
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) {
+      setDisplay(value);
+      return;
+    }
+    const duration = 700;
+    const start = performance.now();
+    let frame: number;
+    const tick = (now: number) => {
+      const progress = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(value * eased);
+      if (progress < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [value]);
+
+  return <span suppressHydrationWarning>{display.toFixed(1)}</span>;
+}
+
 export default function RestaurantPage() {
   return (
     <Suspense
@@ -66,7 +94,7 @@ export default function RestaurantPage() {
         <main className="min-h-dvh bg-[#F7F6F3] text-neutral-500">
           <BrandHeader />
           <div className="mx-auto max-w-[560px] px-5 py-16">
-            <p>Loading…</p>
+            <LoaderDots />
           </div>
         </main>
       }
@@ -112,7 +140,7 @@ function RestaurantContent() {
       <div className={frame}>
         <BrandHeader />
         <main className="mx-auto w-full max-w-[560px] flex-1 px-5 py-16 text-neutral-500">
-          <p>Loading…</p>
+          <LoaderDots />
         </main>
       </div>
     );
@@ -138,9 +166,9 @@ function RestaurantContent() {
 
       <main className="mx-auto w-full max-w-[560px] flex-1 px-4 pb-36 pt-5">
         {/* Restaurant card: red dotted banner + facts */}
-        <section className="overflow-hidden rounded-2xl bg-white shadow-sm">
+        <section className="animate-fade-up overflow-hidden rounded-2xl bg-white shadow-sm">
           <div
-            className="flex h-40 items-end px-6 py-5"
+            className="animate-dots flex h-40 items-end px-6 py-5"
             style={{
               backgroundColor: RED,
               backgroundImage: "radial-gradient(rgba(255,255,255,0.22) 1.5px, transparent 1.5px)",
@@ -162,9 +190,11 @@ function RestaurantContent() {
               </div>
 
               {data.averageRating !== null && (
-                <div className="flex flex-col items-center rounded-xl bg-[#1F7A3F] px-4 py-2.5 text-white">
-                  {/* Printed exactly as the backend handed it over. */}
-                  <span className="text-4xl font-bold leading-none">{data.averageRating}</span>
+                <div className="animate-pop flex flex-col items-center rounded-xl bg-[#1F7A3F] px-4 py-2.5 text-white shadow-sm">
+                  {/* Printed by easing up to the exact value the backend computed. */}
+                  <span className="text-4xl font-bold leading-none">
+                    <CountUpRating value={data.averageRating} />
+                  </span>
                   <span className="mt-1 text-xs text-white/85">/5</span>
                 </div>
               )}
@@ -181,9 +211,14 @@ function RestaurantContent() {
         {data.latestReview ? (
           <>
             {/* The latest review — highlighted card with green edge */}
-            <h2 className="mt-8 text-xs font-bold uppercase tracking-widest text-neutral-400">Latest review</h2>
-            <article className="relative mt-4 rounded-xl border border-l-4 border-l-[#1F7A3F] border-neutral-200 bg-white p-5 shadow-sm">
-              <span className="absolute -top-3 left-4 rounded-md bg-[#1F7A3F] px-3 py-1 text-[10px] font-bold tracking-wide text-white">
+            <h2 className="animate-fade-up mt-8 text-xs font-bold uppercase tracking-widest text-neutral-400" style={{ animationDelay: "80ms" }}>
+              Latest review
+            </h2>
+            <article
+              className="animate-fade-up relative mt-4 rounded-xl border border-l-4 border-l-[#1F7A3F] border-neutral-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+              style={{ animationDelay: "140ms" }}
+            >
+              <span className="animate-pop absolute -top-3 left-4 rounded-md bg-[#1F7A3F] px-3 py-1 text-[10px] font-bold tracking-wide text-white">
                 LATEST
               </span>
               <div className="flex items-center justify-between">
@@ -200,10 +235,14 @@ function RestaurantContent() {
               <>
                 <h2 className="mt-8 text-xs font-bold uppercase tracking-widest text-neutral-400">Earlier reviews</h2>
                 <div className="mt-4 space-y-3">
-                  {data.reviews.map((review) => (
-                    <article key={review.id} className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+                  {data.reviews.map((review, index) => (
+                    <article
+                      key={review.id}
+                      className="animate-fade-up rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                      style={{ animationDelay: `${Math.min(index * 40, 320)}ms` }}
+                    >
                       <div className="flex items-center justify-between">
-                        <span className={`rounded-md px-2.5 py-1 text-sm font-bold ${chipClass(review.rating)}`}>
+                        <span className={`rounded-md px-2.5 py-1 text-sm font-bold transition-transform hover:scale-110 ${chipClass(review.rating)}`}>
                           {review.rating}
                         </span>
                         <span className="text-sm text-neutral-400">{timeAgo(review.createdAt)}</span>
@@ -224,10 +263,10 @@ function RestaurantContent() {
       </main>
 
       {/* Sticky bottom CTA — the one loud red element on the page */}
-      <div className="fixed inset-x-0 bottom-0 bg-gradient-to-t from-[#F7F6F3] via-[#F7F6F3]/85 to-transparent px-4 pb-4 pt-6">
+      <div className="animate-rise fixed inset-x-0 bottom-0 bg-gradient-to-t from-[#F7F6F3] via-[#F7F6F3]/85 to-transparent px-4 pb-4 pt-6">
         <Link
           href={`/review/${restaurantId}`}
-          className="mx-auto flex w-full max-w-[528px] items-center justify-center rounded-xl bg-[#E23744] py-4 text-base font-bold text-white transition-colors hover:bg-[#c93040]"
+          className="mx-auto flex w-full max-w-[528px] items-center justify-center rounded-xl bg-[#E23744] py-4 text-base font-bold text-white shadow-lg shadow-[#E23744]/25 transition-all hover:-translate-y-0.5 hover:bg-[#c93040] active:translate-y-0 active:scale-[0.98]"
         >
           Write a Review
         </Link>

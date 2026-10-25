@@ -1,6 +1,6 @@
 // app/_components/BrandHeader.tsx
 // Shared top bar for every screen: red zomato wordmark + lite suffix + BETA chip.
-// Static decoration only — no data, no fetches.
+// Also home of the shared LoaderDots used while waiting on the API.
 
 export function BrandHeader() {
   return (
@@ -15,5 +15,19 @@ export function BrandHeader() {
         </span>
       </div>
     </header>
+  );
+}
+
+export function LoaderDots() {
+  return (
+    <span className="inline-flex items-center gap-1.5" aria-label="Loading">
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="loader-dot h-2 w-2 rounded-full bg-neutral-400"
+          style={{ animationDelay: `${i * 150}ms` }}
+        />
+      ))}
+    </span>
   );
 }
