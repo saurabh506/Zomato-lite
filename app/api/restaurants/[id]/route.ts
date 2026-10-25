@@ -16,9 +16,9 @@ export async function GET(
   const { id } = await ctx.params;
   const restaurantId = Number(id);
 
-  const restaurants = await sql`
+  const restaurants = (await sql`
     SELECT name, cuisine, area FROM restaurants WHERE id = ${restaurantId}
-  `;
+  `) as { name: string; cuisine: string; area: string }[];
   if (restaurants.length === 0) {
     return NextResponse.json(
       { error: "Restaurant not found." },
@@ -28,12 +28,12 @@ export async function GET(
 
   const restaurant = restaurants[0];
 
-  const allReviews = await sql<ReviewRow[]>`
+  const allReviews = (await sql`
     SELECT id, rating, comment, created_at
     FROM reviews
     WHERE restaurant_id = ${restaurantId}
     ORDER BY created_at DESC
-  `;
+  `) as ReviewRow[];
 
   // The three answers, computed fresh from facts every single request.
   // Nothing below is stored anywhere; it lives only for this response.
@@ -41,9 +41,9 @@ export async function GET(
 
   let averageRating: number | null = null;
   if (totalReviews > 0) {
-    const avg = await sql<{ avg: string | null }[]>`
+    const avg = (await sql`
       SELECT AVG(rating)::text AS avg FROM reviews WHERE restaurant_id = ${restaurantId}
-    `;
+    `) as { avg: string | null }[];
     const parsed = Number.parseFloat(avg[0].avg ?? "NaN");
     averageRating = Number.isNaN(parsed) ? null : Math.round(parsed * 10) / 10;
   }

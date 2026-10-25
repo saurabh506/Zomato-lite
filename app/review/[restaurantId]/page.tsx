@@ -8,9 +8,23 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 export default function ReviewPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="mx-auto max-w-[560px] px-6 py-24 text-neutral-500">
+          <p>Loading…</p>
+        </main>
+      }
+    >
+      <ReviewContent />
+    </Suspense>
+  );
+}
+
+function ReviewContent() {
   const params = useParams<{ restaurantId: string }>();
   const router = useRouter();
   const restaurantId = params.restaurantId;

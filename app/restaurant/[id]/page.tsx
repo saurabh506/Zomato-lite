@@ -7,7 +7,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState, useCallback } from "react";
 
 type Review = {
   id: number;
@@ -27,6 +27,22 @@ type RestaurantData = {
 };
 
 export default function RestaurantPage() {
+  // Next.js prerenders the page ahead of time; reading the URL is a
+  // visit-time thing, so the content streams in inside a Suspense shell.
+  return (
+    <Suspense
+      fallback={
+        <main className="mx-auto max-w-[560px] px-6 py-24 text-neutral-500">
+          <p>Loading…</p>
+        </main>
+      }
+    >
+      <RestaurantContent />
+    </Suspense>
+  );
+}
+
+function RestaurantContent() {
   const params = useParams<{ id: string }>();
   const restaurantId = params.id;
 

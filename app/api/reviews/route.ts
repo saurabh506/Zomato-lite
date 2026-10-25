@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const existing = await sql`SELECT id FROM restaurants WHERE id = ${restaurantId}`;
+  const existing = (await sql`SELECT id FROM restaurants WHERE id = ${restaurantId}`) as { id: number }[];
   if (existing.length === 0) {
     return NextResponse.json(
       { error: "That restaurant does not exist." },
@@ -65,11 +65,11 @@ export async function POST(request: Request) {
 
   // The whole side effect of this endpoint: ONE new row of facts.
   // Nothing else in the database changes. No average is recalculated here.
-  const inserted = await sql<{ id: number }[]>`
+  const inserted = (await sql`
     INSERT INTO reviews (restaurant_id, rating, comment)
     VALUES (${restaurantId}, ${rating}, ${comment})
     RETURNING id
-  `;
+  `) as { id: number }[];
 
   return NextResponse.json(
     { success: true, reviewId: inserted[0].id },
