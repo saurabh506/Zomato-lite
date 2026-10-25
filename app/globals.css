@@ -81,6 +81,25 @@ html {
   }
 }
 
+/* DishScene (photo): warm glow pulses over the bowls */
+@keyframes glowBreathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+.dish-glow {
+  animation: glowBreathe 5.5s ease-in-out infinite;
+  transform-origin: center;
+  mix-blend-mode: overlay;
+}
+
 /* DishScene: steam curls rise, fade, and restart */
 @keyframes steamRise {
   0% {
@@ -125,7 +144,7 @@ html {
 }
 
 .dish-steam {
-  animation: steamRise 3.6s ease-in-out infinite;
+  animation: steamRise 4.6s ease-in-out infinite;
 }
 
 .dish-flame {
